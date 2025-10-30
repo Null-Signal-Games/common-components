@@ -7,7 +7,7 @@
 		variant = 'primary'
 	}: {
 		disabled?: boolean;
-		onclick: () => null;
+		onclick: () => void;
 		children: Snippet;
 		variant?: 'primary' | 'secondary';
 	} = $props();
