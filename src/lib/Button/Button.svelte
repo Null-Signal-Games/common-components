@@ -20,6 +20,7 @@
 		border: none;
 		border-radius: 0.2rem;
 		padding: 0.4rem;
+		cursor: pointer;
 	}
 	.basic:disabled {
 		opacity: 0.5;
