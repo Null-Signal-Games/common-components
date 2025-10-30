@@ -1,6 +1,6 @@
 <script module>
 	import { defineMeta } from '@storybook/addon-svelte-csf';
-	import Button from '$lib/Button.svelte';
+	import { Button } from '$lib/index.js';
 	import { fn } from 'storybook/test';
 
 	const sampleAlert = () => {
