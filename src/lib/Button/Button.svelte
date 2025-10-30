@@ -7,7 +7,7 @@
 		type = 'primary'
 	}: {
 		disabled?: boolean;
-		onclick: () => null;
+		onclick: () => void;
 		children: Snippet;
 		type?: 'primary' | 'secondary';
 	} = $props();
