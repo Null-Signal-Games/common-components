@@ -4,16 +4,16 @@
 		disabled = false,
 		onclick,
 		children,
-		type = 'primary'
+		variant = 'primary'
 	}: {
 		disabled?: boolean;
 		onclick: () => null;
 		children: Snippet;
-		type?: 'primary' | 'secondary';
+		variant?: 'primary' | 'secondary';
 	} = $props();
 </script>
 
-<button class={['basic', type]} {onclick} {disabled}> {@render children()}</button>
+<button class={['basic', variant]} {onclick} {disabled}> {@render children()}</button>
 
 <style>
 	.basic {
