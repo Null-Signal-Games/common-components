@@ -24,6 +24,19 @@
 	}
 	.basic:disabled {
 		opacity: 0.5;
+		cursor: auto;
+	}
+	.basic:disabled:hover {
+		filter: brightness(100%);
+	}
+	.basic:active:disabled {
+		filter: brightness(100%);
+	}
+	.basic:hover {
+		filter: brightness(125%);
+	}
+	.basic:active {
+		filter: brightness(50%);
 	}
 
 	.primary {
