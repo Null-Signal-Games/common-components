@@ -1,12 +1,16 @@
+type Attributes = "sparkle-amount" | "sparkle-rate" | "sparkle-variance" | "disabled" | "allow-pausing";
 const css = String.raw;
 
 const motionOK = window.matchMedia("(prefers-reduced-motion: no-preference)");
+// window.setTimeout returns a number for some reason
 
 class SparklyText extends HTMLElement {
 	static tagName = "sparkly-text";
 	#disabled;
 	// allowPausing is NOT reactive.
 	#allowPausing;
+	#sparkleRate;
+	#sparkleVariance;
 
 	static get observedAttributes() {
 		return ["sparkle-amount", "sparkle-rate", "sparkle-variance", "disabled", "allow-pausing"];
@@ -23,17 +27,14 @@ class SparklyText extends HTMLElement {
 	}
 	get sparkleRate() {
 		// default rate is an average of 1 sparkle every 250ms
-		const strVal = this.getAttribute("sparkle-rate") ?? String(250);
-		return parseInt(strVal);
+		return this.#sparkleRate;
 	}
 	set sparkleRate(value) {
 		const newvalue = Number(value);
 		this.setAttribute("sparkle-rate", newvalue.toString());
 	}
 	get sparkleVariance() {
-		// default variance of +-200ms
-		const strVal = this.getAttribute("sparkle-variance") ?? String(200);
-		return parseInt(strVal);
+		return this.#sparkleVariance;
 	}
 	set sparkleVariance(value) {
 		const newvalue = Number(value);
@@ -46,8 +47,9 @@ class SparklyText extends HTMLElement {
 		this.#disabled = value;
 		const currentAttr = this.getAttribute("disabled") !== null;
 		// Don't trigger if already equal
+
 		if (currentAttr !== this.#disabled) {
-			if (this.#disabled) {
+			if (value) {
 				this.setAttribute("disabled", "");
 			} else {
 				this.removeAttribute("disabled");
@@ -60,12 +62,11 @@ class SparklyText extends HTMLElement {
       --_sparkle-base-size: var(--sparkly-text-size, 15px);
       --_sparkle-base-animation-length: var(--sparkly-text-animation-length, 900ms);
       --_sparkle-base-color: var(--sparkly-text-color, #FFC700);
-      --_sparkle-base-text-shadow-color: var(--sparkly-text-shadow-color, none)
+      --_sparkle-base-text-shadow-color: var(--sparkly-text-shadow-color, none);
 
       display: inline-block;
       isolation: isolate;
-      text-shadow: var(--_sparkle-base-text-shadow-color, none);
-      text-shadow: 0 0 3px white,0px 0px 1px white;
+      text-shadow: 0 0 3px var(--_sparkle-base-text-shadow-color, none),0px 0px 1px var(--_sparkle-base-text-shadow-color, none);
       position: relative;
       z-index: 0;
     }
@@ -90,10 +91,10 @@ class SparklyText extends HTMLElement {
 
     @media (prefers-reduced-motion: no-preference) {
       span[data-animation-active="true"] {
-        animation: comeInOut 900ms forwards;
+        animation: comeInOut var(--_sparkle-base-animation-length, 900ms) forwards;
       }
       span[data-animation-active="true"] svg {
-        animation: spin 1000ms linear;
+        animation: spin calc(var(--_sparkle-base-animation-length, 900ms) + 100ms) linear;
       }
       span[data-animation-active="false"] {
         opacity: 0;
@@ -135,6 +136,8 @@ class SparklyText extends HTMLElement {
 		super();
 		this.#disabled = false;
 		this.#allowPausing = true;
+		this.#sparkleRate = 250;
+		this.#sparkleVariance = 200;
 		let shadowroot = this.attachShadow({ mode: "open" });
 
 		let sheet = new CSSStyleSheet();
@@ -147,7 +150,7 @@ class SparklyText extends HTMLElement {
 
 	connectedCallback() {
 		this.#disabled = this.getAttribute("disabled") !== null;
-		this.#allowPausing = Boolean(this.getAttribute("allow-pausing") ?? true);
+		this.#allowPausing = this.getAttribute("allow-pausing") === null || !(this.getAttribute("allow-pausing") === "false");
 
 		// if we're allowing pausing, then move the slot into the button
 		if (this.#allowPausing) {
@@ -159,7 +162,6 @@ class SparklyText extends HTMLElement {
 		}
 
 		motionOK.addEventListener("change", this.motionOkChange);
-		// steps: create sparkles. add them to shadow root. begin animating
 		if (!motionOK.matches) {
 			this.generateSparkles(Math.floor(this.numberOfSparkles / 2));
 			this.shadowRoot!.querySelectorAll("span[data-animation-active]").forEach((sparkle) => this.#styleSparkle(sparkle as HTMLElement));
@@ -181,8 +183,17 @@ class SparklyText extends HTMLElement {
 
 	pauseSparkles = () => { this.disabled = !this.disabled; }
 
+	attributeChangedCallback(name: Attributes, _: string, current: string) {
+		console.log("name: " + name + " current: " + current)
+		switch (name) {
+			case "sparkle-rate": this.#sparkleRate = parseInt(current); break;
+			case "sparkle-variance": this.#sparkleVariance = parseInt(current); break;
+			default: return;
+		}
+	}
+
 	cleanupSparkles() {
-		const sparkles = this.shadowRoot?.querySelectorAll("span > svg");
+		const sparkles = this.shadowRoot!.querySelectorAll("span");
 		sparkles?.forEach((sparkle) => sparkle.remove());
 	}
 
@@ -207,49 +218,42 @@ class SparklyText extends HTMLElement {
 	}
 
 	sparkleSparkles() {
-		setRandomInterval(() => {
-			if (this.disabled) {
-				return;
+		let timeout;
+		const runInterval = () => {
+			const callback = () => {
+				if (this.disabled) {
+					return;
+				}
+				let availableSparkle = this.shadowRoot!.querySelector('span[data-animation-active="false"]') as HTMLElement | null;
+				if (availableSparkle === null) {
+					return;
+				}
+				this.#styleSparkle(availableSparkle);
+				availableSparkle.dataset.animationActive = "true";
+
 			}
-			let availableSparkle = this.shadowRoot!.querySelector('span[data-animation-active="false"]') as HTMLElement;
-			if (availableSparkle === null) {
-				return;
-			}
-			this.#styleSparkle(availableSparkle);
-			availableSparkle.dataset.animationActive = "true";
-		},
-			this.sparkleRate - this.sparkleVariance,
-			this.sparkleRate + this.sparkleVariance
-		);
+			timeout = window.setTimeout(() => {
+				callback();
+				runInterval();
+			}, randomRange(Math.max(this.sparkleRate - this.sparkleVariance, 0), this.sparkleRate + this.sparkleVariance));
+		}
+		runInterval();
 	}
 
 	#styleSparkle(sparkle: HTMLElement) {
-		sparkle.style.top = randomRange(5, 105) + "%";
-		sparkle.style.left = randomRange(0, 100) + "%";
-		sparkle.style.zIndex = `${Math.random() > 0.5 ? 3 : -1}`;
 		const sizeModifier = `calc(var(--_sparkle-base-size, 15px) / 3 * ${(Math.random() * 2) + 2})`
+		if (Math.random() > 0.5) {
+			sparkle.style.top = `${randomRange(0, 50)}%`;
+			sparkle.style.bottom = '';
+		} else {
+			sparkle.style.bottom = `-${randomRange(0, 50)}%`;
+			sparkle.style.top = '';
+		}
+		sparkle.style.left = `${randomRange(0, 100)}%`;
+		sparkle.style.zIndex = `${Math.random() > 0.5 ? 3 : -1}`;
 		sparkle.style.width = sizeModifier;
 		sparkle.style.height = sizeModifier;
 	}
-}
-
-
-function setRandomInterval(intervalCallback: () => void, minDelay: number, maxDelay: number) {
-	let timeout: number;
-	const runInterval = () => {
-		timeout = window.setTimeout(() => {
-			intervalCallback();
-			runInterval();
-		}, randomRange(minDelay, maxDelay));
-	};
-
-	runInterval();
-
-	return {
-		clear() {
-			clearTimeout(timeout);
-		}
-	};
 }
 
 function randomRange(min: number, max: number) {
