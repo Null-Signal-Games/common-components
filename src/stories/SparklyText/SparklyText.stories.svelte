@@ -33,3 +33,36 @@
 	name="Default"
 	args={{ children: createRawSnippet(() => ({ render: () => 'Sparkly Text' })) }}
 ></Story>
+
+<Story
+	name="HasImage"
+	args={{
+		children: createRawSnippet(() => ({
+			render: () =>
+				`<img src="https://nullsignal.games/wp-content/uploads/2025/10/OWL_C9_Illustration.png" style="max-width: min(100%, 25rem);">`
+		})),
+		sparkleAmount: 12,
+		sparkleRate: 150,
+		sparkleVariance: 100,
+		size: '1rem',
+		allowPausing: false,
+		color: '#eee'
+	}}
+></Story>
+
+<Story
+	name="TextShadow"
+	args={{
+		children: createRawSnippet(() => ({ render: () => 'Sparkly Text' })),
+		textShadowColor: 'white'
+	}}
+></Story>
+
+<Story
+	name="TooFast"
+	args={{
+		children: createRawSnippet(() => ({ render: () => 'Sparkly Text' })),
+		sparkleRate: 250,
+		sparkleVariance: 300
+	}}
+></Story>

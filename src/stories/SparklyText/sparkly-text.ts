@@ -235,21 +235,15 @@ class SparklyText extends HTMLElement {
 			timeout = window.setTimeout(() => {
 				callback();
 				runInterval();
-			}, randomRange(Math.max(this.sparkleRate - this.sparkleVariance, 0), this.sparkleRate + this.sparkleVariance));
+			}, randomRange(Math.max(this.sparkleRate - this.sparkleVariance, 1), Math.max(this.sparkleRate + this.sparkleVariance, 1)));
 		}
 		runInterval();
 	}
 
 	#styleSparkle(sparkle: HTMLElement) {
 		const sizeModifier = `calc(var(--_sparkle-base-size, 15px) / 3 * ${(Math.random() * 2) + 2})`
-		if (Math.random() > 0.5) {
-			sparkle.style.top = `${randomRange(0, 50)}%`;
-			sparkle.style.bottom = '';
-		} else {
-			sparkle.style.bottom = `-${randomRange(0, 50)}%`;
-			sparkle.style.top = '';
-		}
-		sparkle.style.left = `${randomRange(0, 100)}%`;
+		sparkle.style.top = `${randomRange(5, 98)}%`;
+		sparkle.style.left = `${randomRange(5, 98)}%`;
 		sparkle.style.zIndex = `${Math.random() > 0.5 ? 3 : -1}`;
 		sparkle.style.width = sizeModifier;
 		sparkle.style.height = sizeModifier;

@@ -1,13 +1,111 @@
-import { Canvas, Meta } from '@storybook/addon-docs/blocks';
+import { Canvas, Meta, Controls } from '@storybook/addon-docs/blocks';
+
+import TextShadowExample from "../assets/SCR-20251103-nonj.png";
 
 import * as SparklyTextStories from './SparklyText.stories.svelte';
 
 <Meta of={SparklyTextStories} />
 
-# Checkbox
+# Sparkly Text
 
-A checkbox is a square box that can be activated or deactivated when ticked.
-
-Use checkboxes to select one or more options from a list of choices.
+Gives the child element a fun set of sparkles, for added effect.
 
 <Canvas of={SparklyTextStories.Default} />
+
+<Controls />
+
+## Table of Contents
+
+- [Examples](#examples)
+  - [Text Shadow](#text-shadow)
+  - [Children](#children)
+  - [Incorrect Sparkle Variance](#incorrect-sparkle-variance)
+- [Slots](#slots)
+- [Attributes and Properties](#attributes-and-properties)
+- [CSS Custom Properties](#css-custom-properties)
+- [Usage](#usage)
+  - [Svelte](#svelte)
+
+---
+
+## Examples
+
+### Text Shadow
+
+ You can set the `text-shadow` property of the text inside the `sparkly-text` component using the `--sparkly-text-shadow-color` CSS custom property. If you set it to the background color of whatever element the text is inside, it should make it easier to read the text.
+
+ <Canvas of={SparklyTextStories.TextShadow} />
+
+ You can see in both the example and the screenshot below that, since the `--sparkly-text-shadow-color` and the canvas background are both white, there is a faint glow that makes it easier to read the text when sparkles appear behind the text. In practice, you should make sure that you have a CSS variable for your background color that you could apply to this element.
+
+<img src={TextShadowExample} alt="A screenshot of the canvas above, showing the sparkles behind the text. There is a soft glow coming from the text that makes the sparkle appear as if it is becoming transparent anywhere that would make it hard to read it behind the text." style={{maxWidth: 'min(100%, 30rem)'}}/>
+
+### Children
+
+Any element can go inside the `slot` of `sparkly-text`, although all the component defaults are optimized for plain text content. In the example below, roughly half of the sparkles will appear behind the image, which makes it appear more sparse than it actually is.
+
+<Canvas of={SparklyTextStories.HasImage} />
+
+### Incorrect Sparkle Variance
+
+Internally, `sparkly-text` uses a `setInterval` with a random duration that is determined using `randomRange(sparkleRate - sparkleVariance, sparkleRate + sparkleVariance)`. If `sparkleRate - sparkleVariance` ends up being less than 1ms, it is instead 1ms, which is the lowest duration that `setInterval` supports.
+
+<Canvas of={SparklyTextStories.TooFast} />
+
+## Slots
+
+| Name | Description |
+|---|---|
+| (default) | The Sparkly Text's content. |
+
+## Attributes and Properties
+
+These are the attributes and properties for the raw `sparkly-text` web component, which is the recommended way of using the component. You can see an example of how to import and use it in the `SparklyText.svelte` file.
+
+| Name | Description | Reflects |
+|---|---|---|
+| `sparkle-amount` | The number of sparkles generated when the element is mounted. Cannot be changed after the element is mounted.<br/>**Type:** `number`<br/>**Default:** `8` |   |
+| `sparkle-rate` | The average rate a sparkle animation will occur, in milliseconds.<br/>**Type:** `number`.<br/>**Default:** `250`. | ✓ |
+| `sparkle-variance` | Sparkles will sparkle at a random rate, at `sparkle-variance` plus or minus `sparkle-rate` (in milliseconds). For example, a `sparkle-rate` of 250ms and a `sparkle-variance` of 200ms will result in sparkles showing up as early as 50ms and as late as 450ms.<br/>**Type:** `number`<br/>**Default:** `200` | ✓ |
+| `disabled` | Stops new sparkles from showing up.<br/>**Type:** `boolean`<br/>**Default:** `false` | ✓ |
+| `allow-pausing` | When set to `false`, prevents the ability to disable `sparkly-text` by clicking on it. You must set the attribute to `allow-pausing="false"` in full. It is intentionally obtuse as the sparkles might be distracting and users might want to disable them without turning on `prefers-reduced-motion`. Cannot be changed after the element is mounted.<br/>**Type:** `boolean` |   |
+
+## CSS Custom Properties
+
+| Name | Description |
+|---|---|
+| `--sparkly-text-size` | The width and height of the sparkles. Sparkles can range in size from 67% to 133% of their base size. |
+| `--sparkly-text-animation-length` | The duration of the sparkle animation. |
+| `--sparkly-text-color` | The color of the sparkles. |
+| `--sparkly-text-shadow-color` | You can use this to set the `text-shadow` property of text inside of the `sparkly-text` element. |
+
+## Usage
+
+You can import and use `sparkly-text` in a Svelte project like so:
+
+```html
+<script>
+    // Importing alone is all you need. Your linter will probably
+    // get mad about having an unused import.
+    import { SparklyText } from './location/of/sparkly-text.ts';
+</script>
+
+<sparkly-text>Contents</sparkly-text>
+```
+
+In regular HTML you can import and use `sparkly-text` like so:
+
+```html
+<!-- You will have to link to where the file will end up after being compiled by `tsc` -->
+<script type="module" src="./link/to/sparkly-text.js"></script>
+
+<sparkly-text>Contents</sparkly-text>
+```
+
+### Svelte
+
+By default, it is preferred to use `sparkly-text` as a regular web component. This should give you all the functionality while minimizing the bundle and performance load on the client. However, a Svelte wrapper component exists both for your convenience and because our Storybook deployment is configured to Svelte and we cannot configure it to support Svelte and web components.
+
+However, you can use the `SparklyText.svelte` file like normal and it will work like any other Svelte file.
+
+For documentation on the Svelte-specific properties, see the Storybook controls at the top of the document.
