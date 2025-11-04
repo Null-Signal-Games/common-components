@@ -2,7 +2,7 @@
 	import { defineMeta } from '@storybook/addon-svelte-csf';
 	import { fn } from 'storybook/test';
 	import { createRawSnippet } from 'svelte';
-	import SparklyText from './SparklyText.svelte';
+	import SparklyText from '$lib/SparklyText/SparklyText.svelte';
 
 	const { Story } = defineMeta({
 		title: 'Sparkly Text',
@@ -35,11 +35,11 @@
 ></Story>
 
 <Story
-	name="HasImage"
+	name="Has Image"
 	args={{
 		children: createRawSnippet(() => ({
 			render: () =>
-				`<img src="https://nullsignal.games/wp-content/uploads/2025/10/OWL_C9_Illustration.png" style="max-width: min(100%, 25rem);">`
+				`<img src="https://nullsignal.games/wp-content/uploads/2025/10/OWL_C9_Illustration.png" style="max-width: 20rem;">`
 		})),
 		sparkleAmount: 12,
 		sparkleRate: 150,
@@ -51,7 +51,7 @@
 ></Story>
 
 <Story
-	name="TextShadow"
+	name="Has Text Shadow"
 	args={{
 		children: createRawSnippet(() => ({ render: () => 'Sparkly Text' })),
 		textShadowColor: 'white'
@@ -59,10 +59,17 @@
 ></Story>
 
 <Story
-	name="TooFast"
+	name="Incorrect Sparkle Variance"
 	args={{
 		children: createRawSnippet(() => ({ render: () => 'Sparkly Text' })),
 		sparkleRate: 250,
 		sparkleVariance: 300
+	}}
+></Story>
+
+<Story
+	name="Disallow Pausing"
+	args={{
+		allowPausing: false
 	}}
 ></Story>

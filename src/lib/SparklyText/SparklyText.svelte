@@ -48,9 +48,3 @@
 		</sparkly-text>
 	{/key}
 {/key}
-
-<style>
-	sparkly-text {
-		font-family: 'Nunito Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-	}
-</style>

@@ -1,6 +1,7 @@
 import { Canvas, Meta, Controls } from '@storybook/addon-docs/blocks';
 
 import TextShadowExample from "../assets/SCR-20251103-nonj.png";
+import ReducedMotionExample from "../assets/SRC-20251104-makw.png";
 
 import * as SparklyTextStories from './SparklyText.stories.svelte';
 
@@ -18,6 +19,8 @@ Gives the child element a fun set of sparkles, for added effect.
 
 - [Examples](#examples)
   - [Text Shadow](#text-shadow)
+  - [Allow Pausing](#allow-pausing)
+  - [Prefers Reduced Motion](#prefers-reduced-motion)
   - [Children](#children)
   - [Incorrect Sparkle Variance](#incorrect-sparkle-variance)
 - [Slots](#slots)
@@ -34,11 +37,27 @@ Gives the child element a fun set of sparkles, for added effect.
 
  You can set the `text-shadow` property of the text inside the `sparkly-text` component using the `--sparkly-text-shadow-color` CSS custom property. If you set it to the background color of whatever element the text is inside, it should make it easier to read the text.
 
- <Canvas of={SparklyTextStories.TextShadow} />
+ <Canvas of={SparklyTextStories.HasTextShadow} />
 
  You can see in both the example and the screenshot below that, since the `--sparkly-text-shadow-color` and the canvas background are both white, there is a faint glow that makes it easier to read the text when sparkles appear behind the text. In practice, you should make sure that you have a CSS variable for your background color that you could apply to this element.
 
-<img src={TextShadowExample} alt="A screenshot of the canvas above, showing the sparkles behind the text. There is a soft glow coming from the text that makes the sparkle appear as if it is becoming transparent anywhere that would make it hard to read it behind the text." style={{maxWidth: 'min(100%, 30rem)'}}/>
+<img src={TextShadowExample} alt="A screenshot of the canvas above, showing the sparkles behind the text. There is a soft glow coming from the text that makes the sparkle appear as if it is becoming transparent anywhere that would make it hard to read it behind the text." style={{maxWidth: '30rem'}}/>
+
+### Allow Pausing
+
+By default, the contents of `sparkly-text` will get wrapped in a `button` element that can pause and unpause the sparkles when clicked on. You can prevent this `button` from showing up by setting `allow-pausing="false"`. You do not need to set `allow-pausing="true"` to enable pausing, as allowing pausing is the intended default behavior. Since the `button` that the contents would be wrapped in is created on mount, it is not responsive to changes in the attribute after mount. In other words, whatever value you set `allow-pausing` to is what it's stuck with unless you destroy and regenerate the element.
+
+#### Note on disallowing pausing
+
+`allow-pausing` is enabled by default, and requires you to explicitly opt out. This is by design. Sparkles by their very nature are distracting and can cover up text, and people might want to turn them off. While people can turn off the animation by setting their device to `prefers-reduced-motion`, the button offers an alternative for those who would find `prefers-reduced-motion` excessive.
+
+<Canvas of={SparklyTextStories.DisallowPausing} />
+
+### Prefers Reduced Motion
+
+The component is designed to degrade gracefully when `prefers-reduced-motion` is enabled. It will show `sparkle-amount / 2` sparkles. For some reason, those sparkles have a tendency to clump up and to generate below the bottom of the text. I have yet to figure out how to fix this.
+
+<img src={ReducedMotionExample} alt="A screenshot of the element with prefers reduced motion enabled. There are 4 sparkles which are static." style={{maxWidth: '30rem'}}/>
 
 ### Children
 
@@ -46,11 +65,12 @@ Any element can go inside the `slot` of `sparkly-text`, although all the compone
 
 <Canvas of={SparklyTextStories.HasImage} />
 
+
 ### Incorrect Sparkle Variance
 
 Internally, `sparkly-text` uses a `setInterval` with a random duration that is determined using `randomRange(sparkleRate - sparkleVariance, sparkleRate + sparkleVariance)`. If `sparkleRate - sparkleVariance` ends up being less than 1ms, it is instead 1ms, which is the lowest duration that `setInterval` supports.
 
-<Canvas of={SparklyTextStories.TooFast} />
+<Canvas of={SparklyTextStories.IncorrectSparkleVariance} />
 
 ## Slots
 
@@ -68,7 +88,7 @@ These are the attributes and properties for the raw `sparkly-text` web component
 | `sparkle-rate` | The average rate a sparkle animation will occur, in milliseconds.<br/>**Type:** `number`.<br/>**Default:** `250`. | ✓ |
 | `sparkle-variance` | Sparkles will sparkle at a random rate, at `sparkle-variance` plus or minus `sparkle-rate` (in milliseconds). For example, a `sparkle-rate` of 250ms and a `sparkle-variance` of 200ms will result in sparkles showing up as early as 50ms and as late as 450ms.<br/>**Type:** `number`<br/>**Default:** `200` | ✓ |
 | `disabled` | Stops new sparkles from showing up.<br/>**Type:** `boolean`<br/>**Default:** `false` | ✓ |
-| `allow-pausing` | When set to `false`, prevents the ability to disable `sparkly-text` by clicking on it. You must set the attribute to `allow-pausing="false"` in full. It is intentionally obtuse as the sparkles might be distracting and users might want to disable them without turning on `prefers-reduced-motion`. Cannot be changed after the element is mounted.<br/>**Type:** `boolean` |   |
+| `allow-pausing` | When set to `false`, prevents the ability to disable `sparkly-text` by clicking on it. You must set the attribute to `allow-pausing="false"` in full. Cannot be changed after the element is mounted.<br/>**Type:** `boolean` |   |
 
 ## CSS Custom Properties
 
