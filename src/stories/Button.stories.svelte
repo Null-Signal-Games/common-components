@@ -1,31 +1,36 @@
 <script module>
-  import { defineMeta } from '@storybook/addon-svelte-csf';
-  import Button from './Button.svelte';
-  import { fn } from 'storybook/test';
+	import { defineMeta } from '@storybook/addon-svelte-csf';
+	import { Button } from '$lib/index.js';
+	import { fn } from 'storybook/test';
 
-  // More on how to set up stories at: https://storybook.js.org/docs/writing-stories
-  const { Story } = defineMeta({
-    title: 'Example/Button',
-    component: Button,
-    tags: ['autodocs'],
-    argTypes: {
-      backgroundColor: { control: 'color' },
-      size: {
-        control: { type: 'select' },
-        options: ['small', 'medium', 'large'],
-      },
-    },
-    args: {
-      onclick: fn(),
-    }
-  });
+	const sampleAlert = () => {
+		window.alert('button!');
+	};
+
+	// More on how to set up stories at: https://storybook.js.org/docs/writing-stories
+	const { Story } = defineMeta({
+		title: 'Button',
+		component: Button,
+		tags: ['autodocs'],
+		argTypes: {
+			disabled: { control: 'boolean' },
+			variant: { control: 'select', options: ['primary', 'secondary'] }
+		},
+		args: {
+			disabled: false,
+			onclick: fn(),
+			variant: 'primary'
+		}
+	});
 </script>
 
-<!-- More on writing stories with args: https://storybook.js.org/docs/writing-stories/args -->
-<Story name="Primary" args={{ primary: true, label: 'Button' }} />
+<Story name="Primary" args={{ onclick: sampleAlert }}>Criminal</Story>
 
-<Story name="Secondary" args={{ label: 'Button' }} />
+<Story name="Primary Disabled" args={{ disabled: true, onclick: sampleAlert }}>What a shame</Story>
 
-<Story name="Large" args={{ size: 'large', label: 'Button' }} />
+<Story name="Secondary" args={{ onclick: sampleAlert, variant: 'secondary' }}>Jinteki</Story>
 
-<Story name="Small" args={{ size: 'small', label: 'Button' }} />
+<Story
+	name="Secondary Disabled"
+	args={{ disabled: true, onclick: sampleAlert, variant: 'secondary' }}>Ouch</Story
+>
